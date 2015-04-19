@@ -1,5 +1,5 @@
 
-Repoducible Resarch Course Project 1  
+Reproducible Research Course Project 1  
 ====================================
 
 In this assignment we want to study patterns of human activity via the data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The description of the data comes from the course project specificiation: *The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day*.
