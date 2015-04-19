@@ -8,7 +8,8 @@ In this assignment we want to study patterns of human activity via the data from
 
 First we read the data into R and convert the date variable from a factor variable to a Date variable type.
 
-```{r, echo=TRUE}
+
+```r
 activity <- read.csv("activity.csv")
 activity$date <- as.Date(activity$date)
 ```
@@ -17,41 +18,66 @@ activity$date <- as.Date(activity$date)
 
 We aggregate the activity dataset into a data frame stepsday that contains in the variable steps the total number of steps taken each day.
 
-```{r, echo=TRUE}
+
+```r
 stepsday = aggregate(steps ~ date, data=activity, sum)
 ```
 
 We plot the histogram of the total number of steps taken per day.
 
-```{r, echo=TRUE, fig.height=6, fig.width=8}
+
+```r
 hist(stepsday$steps, xlab="Total number of steps per day", main="Histogram of total number of steps per day")
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png) 
+
 We calculate and report the mean and the median of the total number of steps taken per day.
 
-```{r, echo=TRUE}
+
+```r
 mean(stepsday$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(stepsday$steps)
+```
+
+```
+## [1] 10765
 ```
 
 ## What is the average daily activity pattern?
 
 We again aggregate the activity data into a data frame daily that contains in the variable steps the average number of steps taken, average across all days. 
 
-```{r, echo=TRUE}
+
+```r
 daily = aggregate(steps~ interval, data=activity, mean)
 ```
 
 Then we make a time series plot of the 5-minute interval in the x-axis and the average number of steps taken, average across all days in the y-axis.
 
-```{r, echo=TRUE, fig.height=8, fig.width=10}
+
+```r
 plot(daily$interval, daily$steps,type="l", xlab="5-minutes intervals", 
      ylab="average number of steps taken, averaged across all days", main="Average activity daily pattern")
 ```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
 We calculate and report the 5-minutes interval which, on average across all the days in the dataset, contains the maximum nuber of steps.
 
-```{r, echo=TRUE}
+
+```r
 daily$interval[which.max(daily$steps)]
+```
+
+```
+## [1] 835
 ```
 
 ## Imputing missing values
@@ -60,66 +86,93 @@ In the previous steps, we have observed that there are a number of days/interval
 
 We first calculate and report the total number of missing values in the dataset.
 
-```{r, echo=TRUE}
+
+```r
 sum(is.na(activity))
+```
+
+```
+## [1] 2304
 ```
 
 In our effort to impute those missing values, we merge the original dataset activitiy with the daily dataset, we previously created when trying to compute the daily activity pattern, by the variable interval creating a new data frame called imputed. The imputed data frame has in the steps.x variable the original step variable which contains missing values. We select the values of steps.x that contain mising values and replace then with the mean for that 5-minute interval from the steps.y variable.  
 
-```{r, echo=TRUE}
+
+```r
 imputed = merge(activity, daily, by.x="interval", by.y="interval")
 imputed$steps.x[is.na(imputed$steps.x)]= imputed$steps.y[is.na(imputed$steps.x)]
 ```
 
 We create a new dataset activityNew from the imputed dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r, echo=TRUE}
+
+```r
 activityNew=imputed[c("interval", "steps.x", "date")]
 names(activityNew) = c("interval", "steps", "date")
 ```
 
 We then aggregate the activityNew dataset into a data frame stepsday2 that contains in the variable steps the total number of steps taken each day.
 
-```{r, echo=TRUE}
-stepsday2 = aggregate(steps ~ date, data=activityNew, sum)
 
+```r
+stepsday2 = aggregate(steps ~ date, data=activityNew, sum)
 ```
 
 We plot the histogram of the total number of steps taken per day.  
 
-```{r, echo=TRUE, fig.height=6, fig.width=8}
+
+```r
 hist(stepsday2$steps, xlab="Total number of steps per day", main="Histogram of total number of steps per day")
 ```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12-1.png) 
 
 
 We calculate and report the mean and the median of the total number of steps taken per day with the missing values being imputed with the mean for the 5-interval values.
 
-```{r, echo=TRUE}
+
+```r
 mean(stepsday2$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 median(stepsday2$steps)
 ```
 
-We can see that this values are much higher than those of the original dataset. The value for mean changes from `r round(mean(stepsday2$steps),2)` in the imputed dataset to `r round(mean(stepsday$steps),2)` in the original dataset and the median changes from `r round(median(stepsday2$steps),2)` in the imputed dataset to `r round(median(stepsday$steps),2) ` in the original dataset.
+```
+## [1] 10766.19
+```
+
+We can see that this values are much higher than those of the original dataset. The value for mean changes from 1.076619 &times; 10<sup>4</sup> in the imputed dataset to 1.076619 &times; 10<sup>4</sup> in the original dataset and the median changes from 1.076619 &times; 10<sup>4</sup> in the imputed dataset to 1.0765 &times; 10<sup>4</sup> in the original dataset.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
 To answer this question we first create a new factor variable in the activityNew dataset with two levels *weekday* and *weekend* indicating wheter a given date is a weekday or weekend day.
 
-```{r, echo=TRUE}
+
+```r
 activityNew$dates=ifelse(weekdays(activityNew$date) %in% c('sábado','domingo'), "weekend", "weekday")
 ```
 
 We again aggregate the activity data into a data frame weekdays that contains in the variable steps the average number of steps taken, average across all weekday days or weekend days. 
 
-```{r, echo=TRUE}
+
+```r
 weekdays = aggregate(steps~ interval + dates, data=activityNew, mean)
 ```
 
 Then we load the required package and make a time series plot of the 5-minute interval in the x-axis and the average number of steps taken, average across all weekday days or weekday days in the y-axis.
 
-```{r, echo=TRUE, fig.height=8, fig.width=8}
+
+```r
 library(lattice)
 xyplot(weekdays$steps~ weekdays$interval|weekdays$dates,type="l", layout = c(1, 2), 
        xlab="5-minutes intervals", ylab="average number of steps taken, averaged across all weekdays", 
        main="Average weekly activity pattern")
 ```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png) 
